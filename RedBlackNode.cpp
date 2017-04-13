@@ -13,6 +13,7 @@ BinaryNode::BinaryNode(char newToken){
   leftchild = NULL;
   rightchild = NULL;
   parent = NULL;
+  isBlack = false;
 }
 
 //returns the char array stored in the node
@@ -53,4 +54,9 @@ BinaryNode* BinaryNode::getRightChild(){
 //gets the parent of the node, may be null
 BinaryNode* BinaryNode::getParent(){
   return parent;
+}
+
+//sets the node's color
+void setBlack(boolean b){
+  isBlack = b;
 }

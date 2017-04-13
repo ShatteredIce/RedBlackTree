@@ -10,9 +10,18 @@
 
 using namespace std;
 
+//prototypes
+void addRedBlackNode(RedBlackNode* & head, RedBlackNode* newNode);
+void displayTree(RedBlackNode* current, int numSpaces);
+
+const int INPUT_SIZE = 201;
+
 int main(){
-  BinaryNode* head = NULL;
+  RedBlackNode* head = NULL;
+  RedBlackNode* current = NULL;
   char input[INPUT_SIZE];
+  char number[11];
+  int copyIndex;
 
   cout << "\n-----RedBlack Tree v1.0-----\n";
   cout << "Creates a red black tree in the console\n";
@@ -21,7 +30,7 @@ int main(){
 
   //loop until user enters 'quit'
   while(true){
-    cout << "Initial Numbers: ";
+    cout << "Input Numbers: ";
     getInput(input);
     //if input = quit, then end the program
     if(strcmp(input, "quit") == 0){
@@ -46,6 +55,30 @@ int main(){
         continue;
       }
     }
+    //extracts numbers from the input char array one by one
+    copyIndex = 0;
+    fill(number, number + 11, ' ');
+    for(int i = 0; i < strlen(input); i++){
+      if(isdigit(input[i])){
+        number[copyIndex] = input[i];
+        copyIndex++;
+      }
+      //add the extracted number into the red black tree
+      else if(copyIndex != 0){
+        addRedBlackNode(head, new RedBlackNode(strtol(number, NULL, 10)));
+        fill(number, number + 11, ' ');
+        copyIndex = 0;
+      }
+    }
+    //add the extracted number into the red black tree
+    if(copyIndex != 0){
+      addRedBlackNode(head, new RedBlackTree(strtol(number, NULL, 10)));
+      fill(number, number + 11, ' ');
+      copyIndex = 0;
+    }
+    //display the full binary search tree after all numbers have been added
+    cout << "\Red Black Tree (leftmost node is head): \n";
+    displayTree(head, 0);
   }
   return 0;
 }

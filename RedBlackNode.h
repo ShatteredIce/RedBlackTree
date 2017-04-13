@@ -16,8 +16,10 @@ class RedBlackNode {
   BinaryNode* getLeftChild(); //gets the leftchild of the node, may be null
   BinaryNode* getRightChild(); //gets the rightchild of the node, may be null
   BinaryNode* getRightChild();  //gets the parent of the node, may be null
+  void setBlack(bool); //sets the node's color
  protected:
   char* token;
+  bool isBlack;
   BinaryNode* leftchild;
   BinaryNode* rightchild;
   BinaryNode* parent;
