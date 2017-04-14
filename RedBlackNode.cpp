@@ -6,7 +6,7 @@
 using namespace std;
 
 //Constructor: stores a char, sets childs and parents to NULL
-BinaryNode::BinaryNode(char newToken){
+RedBlackNode::RedBlackNode(char newToken){
   token = new char[9];
   fill(token, token + 9, NULL);
   token[0] = newToken;
@@ -17,46 +17,46 @@ BinaryNode::BinaryNode(char newToken){
 }
 
 //returns the char array stored in the node
-char* BinaryNode::getValue(){
+char* RedBlackNode::getValue(){
   return token;
 }
 
 //adds a token to the end of the char array
-void BinaryNode::addToken(char newToken){
+void RedBlackNode::addToken(char newToken){
   token[strlen(token)] = newToken;
 }
 
  //sets the leftchild of this node
-void BinaryNode::setLeftChild(BinaryNode* newNode){
+void RedBlackNode::setLeftChild(RedBlackNode* newNode){
   leftchild = newNode;
 }
 
 //sets the rightchild of this node
-void BinaryNode::setRightChild(BinaryNode* newNode){
+void RedBlackNode::setRightChild(RedBlackNode* newNode){
  rightchild = newNode;
 }
 
 //sets the parent of this node
-void BinaryNode::setParent(BinaryNode* newNode){
+void RedBlackNode::setParent(RedBlackNode* newNode){
  parent = newNode;
 }
 
 //gets the leftchild of the node, may be null
-BinaryNode* BinaryNode::getLeftChild(){
+RedBlackNode* RedBlackNode::getLeftChild(){
   return leftchild;
 }
 
 //gets the rightchild of the node, may be null
-BinaryNode* BinaryNode::getRightChild(){
+RedBlackNode* RedBlackNode::getRightChild(){
   return rightchild;
 }
 
 //gets the parent of the node, may be null
-BinaryNode* BinaryNode::getParent(){
+RedBlackNode* RedBlackNode::getParent(){
   return parent;
 }
 
 //sets the node's color
-void setBlack(boolean b){
+void RedBlackNode::setBlack(bool b){
   isBlack = b;
 }

@@ -12,7 +12,10 @@ using namespace std;
 
 //prototypes
 void addRedBlackNode(RedBlackNode* & head, RedBlackNode* newNode);
+void addRedBlackNodeRecursion(RedBlackNode* current, RedBlackNode* newNode);
 void displayTree(RedBlackNode* current, int numSpaces);
+void getInput(char* input);
+void trimWhitespace(char* text);
 
 const int INPUT_SIZE = 201;
 
@@ -72,15 +75,64 @@ int main(){
     }
     //add the extracted number into the red black tree
     if(copyIndex != 0){
-      addRedBlackNode(head, new RedBlackTree(strtol(number, NULL, 10)));
+      addRedBlackNode(head, new RedBlackNode(strtol(number, NULL, 10)));
       fill(number, number + 11, ' ');
       copyIndex = 0;
     }
     //display the full binary search tree after all numbers have been added
-    cout << "\Red Black Tree (leftmost node is head): \n";
+    cout << "\nRed Black Tree (leftmost node is head): \n";
     displayTree(head, 0);
   }
   return 0;
+}
+
+//adds a RedBlack node to the tree
+void addRedBlackNode(RedBlackNode* & head, RedBlackNode* newNode){
+  if(head == NULL){
+    head = newNode;
+  }
+  else{
+    addRedBlackNodeRecursion(head, newNode);
+  }
+}
+
+//recursively called to add a redblack node to the tree once the head is checked and found to be not null
+void addRedBlackNodeRecursion(RedBlackNode* current, RedBlackNode* newNode){
+  //if child value is greater or equal to parent value, go down the right branch
+  if(newNode->getValue() >= current->getValue()){
+    if(current->getRightChild() != NULL){
+      addRedBlackNodeRecursion(current->getRightChild(), newNode);
+    }
+    else{
+      current->setRightChild(newNode);
+    }
+  }
+  //if child value is less than parent value, go down the left branch
+  else{
+    if(current->getLeftChild() != NULL){
+      addRedBlackNodeRecursion(current->getLeftChild(), newNode);
+    }
+    else{
+      current->setLeftChild(newNode);
+    }
+  }
+}
+
+//prints out the redblack tree to the console
+void displayTree(RedBlackNode* head, int numSpaces){
+  if(head == NULL){
+    return;
+  }
+  if(head->getRightChild() != NULL){
+    displayTree(head->getRightChild(), numSpaces+1);
+  }
+  for(int i = 0; i < numSpaces; i++){
+    cout << "   ";
+  }
+  cout << head->getValue() << endl;
+  if(head->getLeftChild() != NULL){
+    displayTree(head->getLeftChild(), numSpaces+1);
+  }
 }
 
 //stores user input into a char*
