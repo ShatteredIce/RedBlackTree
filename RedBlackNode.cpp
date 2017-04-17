@@ -6,26 +6,18 @@
 using namespace std;
 
 //Constructor: stores a char, sets childs and parents to NULL
-RedBlackNode::RedBlackNode(char newToken){
-  token = new char[9];
-  fill(token, token + 9, NULL);
-  token[0] = newToken;
+RedBlackNode::RedBlackNode(int newValue){
+  value = newValue;
   leftchild = NULL;
   rightchild = NULL;
   parent = NULL;
   isBlack = false;
 }
 
-//returns the char array stored in the node
-char* RedBlackNode::getValue(){
-  return token;
+//returns the value stored in the node
+int RedBlackNode::getValue(){
+  return value;
 }
-
-//adds a token to the end of the char array
-void RedBlackNode::addToken(char newToken){
-  token[strlen(token)] = newToken;
-}
-
  //sets the leftchild of this node
 void RedBlackNode::setLeftChild(RedBlackNode* newNode){
   leftchild = newNode;
@@ -54,6 +46,11 @@ RedBlackNode* RedBlackNode::getRightChild(){
 //gets the parent of the node, may be null
 RedBlackNode* RedBlackNode::getParent(){
   return parent;
+}
+
+//returns the node's color
+bool RedBlackNode::getIsBlack(){
+  return isBlack;
 }
 
 //sets the node's color
