@@ -15,7 +15,7 @@ class RedBlackNode {
   RedBlackNode* getLeftChild(); //gets the leftchild of the node, may be null
   RedBlackNode* getRightChild(); //gets the rightchild of the node, may be null
   RedBlackNode* getParent();  //gets the parent of the node, may be null
-  bool getIsBlack();
+  bool getIsBlack(); //gets the node color, returns true if black and false if red
   void setBlack(bool); //sets the node's color
  protected:
   int value;

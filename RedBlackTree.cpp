@@ -1,5 +1,5 @@
 //C++ Project 12 - RedBlackTree - 4/12/17
-//Creates an red black tree
+//Creates an red black tree in the console
 
 #include <iostream>
 #include <string.h>
@@ -87,7 +87,7 @@ int main(){
       fill(number, number + 11, ' ');
       copyIndex = 0;
     }
-    //display the full binary search tree after all numbers have been added
+    //display the full red black tree after all numbers have been added
     cout << "\nRed Black Tree (leftmost node is head): \n";
     displayTree(head, 0);
 
@@ -140,7 +140,7 @@ int main(){
           copyIndex = 0;
         }
       }
-      //displays the redblack tree
+      //displays the red black tree
       else if(strcmp(input, "print") == 0){
         cout << "Red Black Tree (leftmost node is head): \n";
         displayTree(head, 0);
@@ -259,6 +259,7 @@ void insertCase3(RedBlackNode* current){
 
 void insertCase4(RedBlackNode* current){
   RedBlackNode* g = getGrandparent(current);
+  //The current node is a right child, and its parent is a left child
   if ((current == current->getParent()->getRightChild()) && (current->getParent() == g->getLeftChild())) {
     RedBlackNode* saved_p = g->getLeftChild();
     RedBlackNode* saved_current_left = current->getLeftChild();
@@ -273,6 +274,7 @@ void insertCase4(RedBlackNode* current){
     current = current->getLeftChild();
 
   }
+  //The current node is a left child, and its parent is a right child
   else if ((current == current->getParent()->getLeftChild()) && (current->getParent() == g->getRightChild())) {
     RedBlackNode* saved_p = g->getRightChild();
     RedBlackNode* saved_current_right = current->getRightChild();
@@ -293,6 +295,7 @@ void insertCase5(RedBlackNode* current){
   RedBlackNode* g = getGrandparent(current);
   current->getParent()->setBlack(true);
   g->setBlack(false);
+  //The current node and its parent are both left children
   if (current == current->getParent()->getLeftChild()){
     RedBlackNode* saved_parent_right = current->getParent()->getRightChild();
     current->getParent()->setRightChild(g);
@@ -313,6 +316,7 @@ void insertCase5(RedBlackNode* current){
       saved_parent_right->setParent(g);
     }
   }
+  //The current node and its parent are both right children
   else{
     RedBlackNode* saved_parent_left = current->getParent()->getLeftChild();
     current->getParent()->setLeftChild(g);

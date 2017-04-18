@@ -48,7 +48,7 @@ RedBlackNode* RedBlackNode::getParent(){
   return parent;
 }
 
-//returns the node's color
+//gets the node color, returns true if black and false if red
 bool RedBlackNode::getIsBlack(){
   return isBlack;
 }
