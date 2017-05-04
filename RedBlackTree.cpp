@@ -19,11 +19,13 @@ void insertCase3(RedBlackNode* current);
 void insertCase4(RedBlackNode* current);
 void insertCase5(RedBlackNode* current);
 void displayTree(RedBlackNode* current, int numSpaces);
+bool searchTree(RedBlackNode* current, int value);
 void deleteTree(RedBlackNode* treeNode);
 RedBlackNode* getGrandparent(RedBlackNode* current);
 RedBlackNode* getUncle(RedBlackNode* current);
 void getInput(char* input);
 void trimWhitespace(char* text);
+int getInt(char* message);
 
 const int INPUT_SIZE = 201;
 
@@ -33,6 +35,7 @@ int main(){
   char input[INPUT_SIZE];
   char number[11];
   int copyIndex;
+  int searchNumber;
 
   cout << "\n-----RedBlack Tree v1.0-----\n";
   cout << "Creates a red black tree in the console\n";
@@ -92,7 +95,7 @@ int main(){
     displayTree(head, 0);
 
     //prompt the user if they want to modify the existing red black tree
-    cout << "\nDo you wish to modify the red black tree? \nCommands: 'add', 'print' or 'next' to continue\n";
+    cout << "\nDo you wish to modify the red black tree? \nCommands: 'add', 'search', 'print' or 'next' to continue\n";
     while(!strcmp(input, "next") == 0){
       cout << "\nInput: ";
       getInput(input);
@@ -138,6 +141,18 @@ int main(){
           addRedBlackNode(head, new RedBlackNode(strtol(number, NULL, 10)));
           fill(number, number + 11, ' ');
           copyIndex = 0;
+        }
+      }
+      //searches the red black tree for a node
+      else if(strcmp(input, "search") == 0){
+        searchNumber = getInt("Enter number to search for: ");
+        if(searchTree(head, searchNumber)){
+          cout << "The value '" << searchNumber << "' exists in the tree\n";
+          cin.ignore();
+        }
+        else{
+          cout << "The value '" << searchNumber << "' does not exist in the tree\n";
+          cin.ignore();
         }
       }
       //displays the red black tree
@@ -362,6 +377,22 @@ void displayTree(RedBlackNode* head, int numSpaces){
   }
 }
 
+bool searchTree(RedBlackNode* current, int value){
+  if(current == NULL){
+    return false;
+  }
+  else if(current->getValue() == value){
+    return true;
+  }
+  //go down the right branch
+  else if(current->getValue() < value){
+    return searchTree(current->getRightChild(), value);
+  }
+  else{
+    return searchTree(current->getLeftChild(), value);
+  }
+}
+
 //deletes all nodes in a red black tree
 void deleteTree(RedBlackNode* treeNode){
   if(treeNode->getRightChild() != NULL){
@@ -401,4 +432,26 @@ void trimWhitespace(char* text){
   else{
     *(newText-1) = '\0';
   }
+}
+
+//prompts the user for an integer
+int getInt(char* message){
+  int number;
+  bool valid = false;
+  while (!valid){
+    cout << message;
+    cin >> number;
+    //delete excess whitespace
+    while (cin.peek() == ' '){
+      cin.ignore(1);
+    }
+    if(cin.peek() != '\n'){
+      cin.clear();
+      cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    }
+    else{
+      valid = true;
+    }
+  }
+  return number;
 }
