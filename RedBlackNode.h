@@ -9,6 +9,7 @@ class RedBlackNode {
  public:
   RedBlackNode(int); //constructor
   int getValue(); //returns the value stored in the node
+  void setValue(int); //sets the node value
   void setLeftChild(RedBlackNode*); //sets the left child of the node
   void setRightChild(RedBlackNode*); //sets the right child of the node
   void setParent(RedBlackNode*); //sets the parent of the node

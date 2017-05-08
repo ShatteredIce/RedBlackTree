@@ -18,8 +18,15 @@ void insertCase2(RedBlackNode* current);
 void insertCase3(RedBlackNode* current);
 void insertCase4(RedBlackNode* current);
 void insertCase5(RedBlackNode* current);
+void deleteRedBlackNode(RedBlackNode* current);
+void deleteCase1(RedBlackNode* current);
+void deleteCase2(RedBlackNode* current);
+void deleteCase3(RedBlackNode* current);
+void deleteCase4(RedBlackNode* current);
+void deleteCase5(RedBlackNode* current);
+void deleteCase6(RedBlackNode* current);
 void displayTree(RedBlackNode* current, int numSpaces);
-bool searchTree(RedBlackNode* current, int value);
+RedBlackNode* searchTree(RedBlackNode* current, int value);
 void deleteTree(RedBlackNode* treeNode);
 RedBlackNode* getGrandparent(RedBlackNode* current);
 RedBlackNode* getUncle(RedBlackNode* current);
@@ -146,13 +153,23 @@ int main(){
       //searches the red black tree for a node
       else if(strcmp(input, "search") == 0){
         searchNumber = getInt("Enter number to search for: ");
+        cin.ignore();
         if(searchTree(head, searchNumber)){
           cout << "The value '" << searchNumber << "' exists in the tree\n";
-          cin.ignore();
         }
         else{
           cout << "The value '" << searchNumber << "' does not exist in the tree\n";
-          cin.ignore();
+        }
+      }
+      //deletes a value from the red black tree
+      else if(strcmp(input, "delete") == 0){
+        searchNumber = getInt("Enter number to delete: ");
+        cin.ignore();
+        if(searchTree(head, searchNumber)){
+          deleteRedBlackNode(searchTree(head, searchNumber));
+        }
+        else{
+          cout << "The value '" << searchNumber << "' does not exist in the tree\n";
         }
       }
       //displays the red black tree
@@ -195,6 +212,21 @@ RedBlackNode* getUncle(RedBlackNode* current){
   }
   else{
     return g->getLeftChild();
+  }
+}
+
+//gets the sibling node of a RedBlackNode
+RedBlackNode* getSibling(RedBlackNode* current){
+  //no parent means no sibling
+  RedBlackNode* p = current->getParent();
+  if(p == NULL){
+    return NULL;
+  }
+  if (current == p->getLeftChild()){
+    return p->getRightChild();
+  }
+  else{
+    return p->getLeftChild();
   }
 }
 
@@ -354,6 +386,64 @@ void insertCase5(RedBlackNode* current){
   }
 }
 
+//deletes a RedBlack node from the tree
+void deleteRedBlackNode(RedBlackNode* current){
+  RedBlackNode* successor = current;
+  //finds successor node
+  if(current->getRightChild() != NULL){
+    successor = current->getRightChild();
+    while(successor->getLeftChild() != NULL){
+      successor = successor->getLeftChild();
+    }
+  }
+  //swaps values of successor and original node
+  int temp = successor->getValue();
+  successor->setValue(current->getValue());
+  current->setValue(successor->getValue());
+  //if successor is black
+  if(successor->getIsBlack()){
+    //if child is not black, set it to black
+    if (successor->getRightChild() != NULL && successor->getRightChild()->getIsBlack() == false){
+      successor->getRightChild()->setBlack(true);
+    }
+    //if both successor and child are black
+    else{
+     deleteCase1(successor->getRightChild());
+    }
+  }
+  successor->getParent()->setLeftChild(successor->getRightChild());
+  if(successor->getRightChild()){
+      successor->getRightChild()->setParent(successor->getParent());
+  }
+  delete successor;
+}
+
+void deleteCase1(RedBlackNode* current){
+  if (current->getParent() != NULL){
+    deleteCase2(current);
+  }
+}
+
+void deleteCase2(RedBlackNode* current){
+  deleteCase3(current);
+}
+
+void deleteCase3(RedBlackNode* current){
+  deleteCase4(current);
+}
+
+void deleteCase4(RedBlackNode* current){
+  deleteCase5(current);
+}
+
+void deleteCase5(RedBlackNode* current){
+  deleteCase6(current);
+}
+
+void deleteCase6(RedBlackNode* current){
+  //Do stuff
+}
+
 //prints out the redblack tree to the console
 void displayTree(RedBlackNode* head, int numSpaces){
   if(head == NULL){
@@ -377,12 +467,12 @@ void displayTree(RedBlackNode* head, int numSpaces){
   }
 }
 
-bool searchTree(RedBlackNode* current, int value){
+RedBlackNode* searchTree(RedBlackNode* current, int value){
   if(current == NULL){
-    return false;
+    return NULL;
   }
   else if(current->getValue() == value){
-    return true;
+    return current;
   }
   //go down the right branch
   else if(current->getValue() < value){

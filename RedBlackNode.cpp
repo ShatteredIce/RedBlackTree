@@ -18,7 +18,12 @@ RedBlackNode::RedBlackNode(int newValue){
 int RedBlackNode::getValue(){
   return value;
 }
- //sets the leftchild of this node
+
+void RedBlackNode::setValue(int newValue){
+    value = newValue;
+}
+
+//sets the leftchild of this node
 void RedBlackNode::setLeftChild(RedBlackNode* newNode){
   leftchild = newNode;
 }
