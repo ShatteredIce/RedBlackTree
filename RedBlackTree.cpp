@@ -218,15 +218,14 @@ RedBlackNode* getUncle(RedBlackNode* current){
 //gets the sibling node of a RedBlackNode
 RedBlackNode* getSibling(RedBlackNode* current){
   //no parent means no sibling
-  RedBlackNode* p = current->getParent();
-  if(p == NULL){
+  if(current == NULL || current->getParent() == NULL){
     return NULL;
   }
-  if (current == p->getLeftChild()){
-    return p->getRightChild();
+  if (current == current->getParent()->getLeftChild()){
+    return current->getParent()->getRightChild();
   }
   else{
-    return p->getLeftChild();
+    return current->getParent()->getLeftChild();
   }
 }
 
@@ -240,7 +239,6 @@ void addRedBlackNode(RedBlackNode* & head, RedBlackNode* newNode){
   }
   insertCase1(newNode);
   while(head->getParent() != NULL){
-    cout << head->getValue() << endl;
     head = head->getParent();
   }
 }
@@ -411,7 +409,12 @@ void deleteRedBlackNode(RedBlackNode* current){
      deleteCase1(successor->getRightChild());
     }
   }
-  successor->getParent()->setLeftChild(successor->getRightChild());
+  if(successor == successor->getParent()->getLeftChild()){
+    successor->getParent()->setLeftChild(successor->getRightChild());
+  }
+  else{
+    successor->getParent()->setRightChild(successor->getRightChild());
+  }
   if(successor->getRightChild()){
       successor->getRightChild()->setParent(successor->getParent());
   }
@@ -419,29 +422,168 @@ void deleteRedBlackNode(RedBlackNode* current){
 }
 
 void deleteCase1(RedBlackNode* current){
-  if (current->getParent() != NULL){
+  cout << "del case 1\n";
+  if (current == NULL || current->getParent() != NULL){
     deleteCase2(current);
   }
 }
 
+//if sibling is red
 void deleteCase2(RedBlackNode* current){
+  cout << "del case 2\n";
+  RedBlackNode* s = getSibling(current);
+  if (s != NULL && s->getIsBlack() == false) {
+    current->getParent()->setBlack(false);
+    s->setBlack(true);
+    //rotate left
+    if (current == current->getParent()->getLeftChild()){
+      RedBlackNode* saved_p = current->getParent();
+      RedBlackNode* saved_s_left = s->getLeftChild();
+      if(saved_p->getParent() != NULL){
+        if(saved_p == saved_p->getParent()->getLeftChild()){
+          saved_p->getParent()->setLeftChild(s);
+        }
+        else{
+          saved_p->getParent()->setRightChild(s);
+        }
+      }
+      s->setParent(saved_p->getParent());
+      s->setLeftChild(saved_p);
+      saved_p->setParent(s);
+      if(saved_s_left != NULL){
+        saved_s_left->setParent(saved_p);
+      }
+      saved_p->setRightChild(saved_s_left);
+    }
+    //rotate right
+    else{
+      RedBlackNode* saved_p = current->getParent();
+      RedBlackNode* saved_s_right = s->getRightChild();
+      if(saved_p->getParent() != NULL){
+        if(saved_p == saved_p->getParent()->getLeftChild()){
+          saved_p->getParent()->setLeftChild(s);
+        }
+        else{
+          saved_p->getParent()->setRightChild(s);
+        }
+      }
+      s->setParent(saved_p->getParent());
+      s->setRightChild(saved_p);
+      saved_p->setParent(s);
+      if(saved_s_right != NULL){
+        saved_s_right->setParent(saved_p);
+      }
+      saved_p->setLeftChild(saved_s_right);
+    }
+ }
   deleteCase3(current);
 }
 
+//if parent, sibling, and sibling's children are all black
 void deleteCase3(RedBlackNode* current){
-  deleteCase4(current);
+  cout << "del case 3\n";
+  RedBlackNode* s = getSibling(current);
+  if ((current->getParent()->getIsBlack()) && (s->getIsBlack()) && (s->getLeftChild()->getIsBlack()) && (s->getRightChild()->getIsBlack())) {
+    s->setBlack(false);
+    deleteCase1(current->getParent());
+  }
+  else
+    deleteCase4(current);
 }
 
+//if sibling and sibling's children are black but parent is red
 void deleteCase4(RedBlackNode* current){
-  deleteCase5(current);
+  cout << "del case 4\n";
+  RedBlackNode* s = getSibling(current);
+  if ((!current->getParent()->getIsBlack()) && (s->getIsBlack()) && (s->getLeftChild()->getIsBlack()) && (s->getRightChild()->getIsBlack())){
+    s->setBlack(false);
+    current->getParent()->setBlack(true);
+  }
+  else
+    deleteCase5(current);
 }
 
 void deleteCase5(RedBlackNode* current){
+  cout << "del case 5\n";
+  RedBlackNode* s = getSibling(current);
+
+  if (s->getIsBlack()) {
+    if ((current == current->getParent()->getLeftChild()) && (s->getRightChild()->getIsBlack()) && (!s->getLeftChild()->getIsBlack())){
+      s->setBlack(false);
+      s->getLeftChild()->setBlack(true);
+      //rotate right
+      RedBlackNode* saved_sl_right = s->getLeftChild()->getRightChild();
+      current->getParent()->setRightChild(s->getLeftChild());
+      s->getLeftChild()->setParent(current->getParent());
+      s->getLeftChild()->setRightChild(s);
+      s->setParent(s->getLeftChild());
+      s->setLeftChild(saved_sl_right);
+      saved_sl_right->setParent(s);
+
+    }
+    else if ((current == current->getParent()->getRightChild()) && (s->getLeftChild()->getIsBlack()) && (!s->getRightChild()->getIsBlack())){
+      s->setBlack(false);
+      s->getRightChild()->setBlack(true);
+      //rotate left
+      RedBlackNode* saved_sl_left = s->getRightChild()->getLeftChild();
+      current->getParent()->setLeftChild(s->getRightChild());
+      s->getRightChild()->setParent(current->getParent());
+      s->getRightChild()->setLeftChild(s);
+      s->setParent(s->getRightChild());
+      s->setRightChild(saved_sl_left);
+      saved_sl_left->setParent(s);
+    }
+  }
   deleteCase6(current);
 }
 
 void deleteCase6(RedBlackNode* current){
-  //Do stuff
+  cout << "del case 6\n";
+  RedBlackNode* s = getSibling(current);
+  s->setBlack(current->getParent()->getIsBlack());
+  current->getParent()->setBlack(true);
+  if (current == current->getParent()->getLeftChild()) {
+    s->getRightChild()->setBlack(true);
+    //rotate left
+    RedBlackNode* saved_p = current->getParent();
+    RedBlackNode* saved_s_left = s->getLeftChild();
+    if(saved_p->getParent() != NULL){
+      if(saved_p == saved_p->getParent()->getLeftChild()){
+        saved_p->getParent()->setLeftChild(s);
+      }
+      else{
+        saved_p->getParent()->setRightChild(s);
+      }
+    }
+    s->setParent(saved_p->getParent());
+    s->setLeftChild(saved_p);
+    saved_p->setParent(s);
+    if(saved_s_left != NULL){
+      saved_s_left->setParent(saved_p);
+    }
+    saved_p->setRightChild(saved_s_left);
+  }
+  else {
+    s->getLeftChild()->setBlack(true);
+    //rotate right
+    RedBlackNode* saved_p = current->getParent();
+    RedBlackNode* saved_s_right = s->getRightChild();
+    if(saved_p->getParent() != NULL){
+      if(saved_p == saved_p->getParent()->getLeftChild()){
+        saved_p->getParent()->setLeftChild(s);
+      }
+      else{
+        saved_p->getParent()->setRightChild(s);
+      }
+    }
+    s->setParent(saved_p->getParent());
+    s->setRightChild(saved_p);
+    saved_p->setParent(s);
+    if(saved_s_right != NULL){
+      saved_s_right->setParent(saved_p);
+    }
+    saved_p->setLeftChild(saved_s_right);
+  }
 }
 
 //prints out the redblack tree to the console
