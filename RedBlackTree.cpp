@@ -167,6 +167,10 @@ int main(){
         cin.ignore();
         if(searchTree(head, searchNumber)){
           deleteRedBlackNode(searchTree(head, searchNumber));
+          //gets the new head if the tree was rotated
+          while(head->getParent() != NULL){
+            head = head->getParent();
+          }
         }
         else{
           cout << "The value '" << searchNumber << "' does not exist in the tree\n";
@@ -398,25 +402,21 @@ void deleteRedBlackNode(RedBlackNode* current){
   int temp = successor->getValue();
   successor->setValue(current->getValue());
   current->setValue(successor->getValue());
+  RedBlackNode* child = successor->getRightChild() == NULL ? successor->getLeftChild() : successor->getRightChild();
   //if successor is black
   if(successor->getIsBlack()){
-    //if child is not black, set it to black
-    if (successor->getRightChild() != NULL && successor->getRightChild()->getIsBlack() == false){
-      successor->getRightChild()->setBlack(true);
-    }
-    //if both successor and child are black
-    else{
-     deleteCase1(successor->getRightChild());
-    }
+    deleteCase1(successor);
   }
+  //removes the node to be deleted from the tree
+  child = successor->getRightChild() == NULL ? successor->getLeftChild() : successor->getRightChild();
   if(successor == successor->getParent()->getLeftChild()){
-    successor->getParent()->setLeftChild(successor->getRightChild());
+    successor->getParent()->setLeftChild(child);
   }
   else{
-    successor->getParent()->setRightChild(successor->getRightChild());
+    successor->getParent()->setRightChild(child);
   }
-  if(successor->getRightChild()){
-      successor->getRightChild()->setParent(successor->getParent());
+  if(child){
+      child->setParent(successor->getParent());
   }
   delete successor;
 }
@@ -483,7 +483,7 @@ void deleteCase2(RedBlackNode* current){
 void deleteCase3(RedBlackNode* current){
   cout << "del case 3\n";
   RedBlackNode* s = getSibling(current);
-  if ((current->getParent()->getIsBlack()) && (s->getIsBlack()) && (s->getLeftChild()->getIsBlack()) && (s->getRightChild()->getIsBlack())) {
+  if ((current->getParent()->getIsBlack()) && (s->getIsBlack()) && (s->getLeftChild() == NULL || s->getLeftChild()->getIsBlack()) && (s->getRightChild() == NULL || s->getRightChild()->getIsBlack())) {
     s->setBlack(false);
     deleteCase1(current->getParent());
   }
@@ -503,6 +503,7 @@ void deleteCase4(RedBlackNode* current){
     deleteCase5(current);
 }
 
+//sibling is black, sibling's left child is red, siblings's right child is black, and current is a left child
 void deleteCase5(RedBlackNode* current){
   cout << "del case 5\n";
   RedBlackNode* s = getSibling(current);
@@ -537,16 +538,19 @@ void deleteCase5(RedBlackNode* current){
   deleteCase6(current);
 }
 
+//sibling is black, sibling's right child is red, current is a left child.
 void deleteCase6(RedBlackNode* current){
   cout << "del case 6\n";
   RedBlackNode* s = getSibling(current);
   s->setBlack(current->getParent()->getIsBlack());
   current->getParent()->setBlack(true);
   if (current == current->getParent()->getLeftChild()) {
+    cout << "del case 6.1a\n";
     s->getRightChild()->setBlack(true);
     //rotate left
     RedBlackNode* saved_p = current->getParent();
     RedBlackNode* saved_s_left = s->getLeftChild();
+    cout << "del case 6.2a\n";
     if(saved_p->getParent() != NULL){
       if(saved_p == saved_p->getParent()->getLeftChild()){
         saved_p->getParent()->setLeftChild(s);
@@ -555,15 +559,18 @@ void deleteCase6(RedBlackNode* current){
         saved_p->getParent()->setRightChild(s);
       }
     }
+    cout << "del case 6.3a\n";
     s->setParent(saved_p->getParent());
     s->setLeftChild(saved_p);
     saved_p->setParent(s);
     if(saved_s_left != NULL){
       saved_s_left->setParent(saved_p);
     }
+    cout << "del case 6.4a\n";
     saved_p->setRightChild(saved_s_left);
   }
   else {
+    cout << "del case 6.1b\n";
     s->getLeftChild()->setBlack(true);
     //rotate right
     RedBlackNode* saved_p = current->getParent();
