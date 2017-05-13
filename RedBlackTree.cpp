@@ -18,7 +18,7 @@ void insertCase2(RedBlackNode* current);
 void insertCase3(RedBlackNode* current);
 void insertCase4(RedBlackNode* current);
 void insertCase5(RedBlackNode* current);
-void deleteRedBlackNode(RedBlackNode* current);
+void deleteRedBlackNode(RedBlackNode* & head, RedBlackNode* current);
 void deleteCase1(RedBlackNode* current);
 void deleteCase2(RedBlackNode* current);
 void deleteCase3(RedBlackNode* current);
@@ -102,7 +102,7 @@ int main(){
     displayTree(head, 0);
 
     //prompt the user if they want to modify the existing red black tree
-    cout << "\nDo you wish to modify the red black tree? \nCommands: 'add', 'search', 'print' or 'next' to continue\n";
+    cout << "\nDo you wish to modify the red black tree? \nCommands: 'add', 'search', 'delete', 'print' or 'next' to continue\n";
     while(!strcmp(input, "next") == 0){
       cout << "\nInput: ";
       getInput(input);
@@ -166,9 +166,9 @@ int main(){
         searchNumber = getInt("Enter number to delete: ");
         cin.ignore();
         if(searchTree(head, searchNumber)){
-          deleteRedBlackNode(searchTree(head, searchNumber));
+          deleteRedBlackNode(head, searchTree(head, searchNumber));
           //gets the new head if the tree was rotated
-          while(head->getParent() != NULL){
+          while(head != NULL && head->getParent() != NULL){
             head = head->getParent();
           }
         }
@@ -389,7 +389,7 @@ void insertCase5(RedBlackNode* current){
 }
 
 //deletes a RedBlack node from the tree
-void deleteRedBlackNode(RedBlackNode* current){
+void deleteRedBlackNode(RedBlackNode* & head, RedBlackNode* current){
   RedBlackNode* successor = current;
   //finds successor node
   if(current->getRightChild() != NULL){
@@ -401,7 +401,8 @@ void deleteRedBlackNode(RedBlackNode* current){
   //swaps values of successor and original node
   int temp = successor->getValue();
   successor->setValue(current->getValue());
-  current->setValue(successor->getValue());
+  current->setValue(temp);
+  //displayTree(current, 0);
   RedBlackNode* child = successor->getRightChild() == NULL ? successor->getLeftChild() : successor->getRightChild();
   //if successor is black
   if(successor->getIsBlack()){
@@ -409,20 +410,28 @@ void deleteRedBlackNode(RedBlackNode* current){
   }
   //removes the node to be deleted from the tree
   child = successor->getRightChild() == NULL ? successor->getLeftChild() : successor->getRightChild();
-  if(successor == successor->getParent()->getLeftChild()){
-    successor->getParent()->setLeftChild(child);
+  if(successor->getParent() == NULL){
+    if(child){
+      child->setParent(NULL);
+      child->setBlack(true);
+    }
+    head = child;
   }
   else{
-    successor->getParent()->setRightChild(child);
-  }
-  if(child){
-      child->setParent(successor->getParent());
+    if(successor == successor->getParent()->getLeftChild()){
+      successor->getParent()->setLeftChild(child);
+    }
+    else{
+      successor->getParent()->setRightChild(child);
+    }
+    if(child){
+        child->setParent(successor->getParent());
+    }
   }
   delete successor;
 }
 
 void deleteCase1(RedBlackNode* current){
-  cout << "del case 1\n";
   if (current == NULL || current->getParent() != NULL){
     deleteCase2(current);
   }
@@ -430,7 +439,6 @@ void deleteCase1(RedBlackNode* current){
 
 //if sibling is red
 void deleteCase2(RedBlackNode* current){
-  cout << "del case 2\n";
   RedBlackNode* s = getSibling(current);
   if (s != NULL && s->getIsBlack() == false) {
     current->getParent()->setBlack(false);
@@ -481,7 +489,6 @@ void deleteCase2(RedBlackNode* current){
 
 //if parent, sibling, and sibling's children are all black
 void deleteCase3(RedBlackNode* current){
-  cout << "del case 3\n";
   RedBlackNode* s = getSibling(current);
   if ((current->getParent()->getIsBlack()) && (s->getIsBlack()) && (s->getLeftChild() == NULL || s->getLeftChild()->getIsBlack()) && (s->getRightChild() == NULL || s->getRightChild()->getIsBlack())) {
     s->setBlack(false);
@@ -493,9 +500,8 @@ void deleteCase3(RedBlackNode* current){
 
 //if sibling and sibling's children are black but parent is red
 void deleteCase4(RedBlackNode* current){
-  cout << "del case 4\n";
   RedBlackNode* s = getSibling(current);
-  if ((!current->getParent()->getIsBlack()) && (s->getIsBlack()) && (s->getLeftChild()->getIsBlack()) && (s->getRightChild()->getIsBlack())){
+  if ((!current->getParent()->getIsBlack()) && (s->getIsBlack()) && (s->getLeftChild() == NULL || s->getLeftChild()->getIsBlack()) && (s->getRightChild() == NULL || s->getRightChild()->getIsBlack())){
     s->setBlack(false);
     current->getParent()->setBlack(true);
   }
@@ -505,11 +511,9 @@ void deleteCase4(RedBlackNode* current){
 
 //sibling is black, sibling's left child is red, siblings's right child is black, and current is a left child
 void deleteCase5(RedBlackNode* current){
-  cout << "del case 5\n";
   RedBlackNode* s = getSibling(current);
-
   if (s->getIsBlack()) {
-    if ((current == current->getParent()->getLeftChild()) && (s->getRightChild()->getIsBlack()) && (!s->getLeftChild()->getIsBlack())){
+    if ((current == current->getParent()->getLeftChild()) && (s->getRightChild() == NULL || s->getRightChild()->getIsBlack()) && (s->getLeftChild() != NULL && !s->getLeftChild()->getIsBlack())){
       s->setBlack(false);
       s->getLeftChild()->setBlack(true);
       //rotate right
@@ -519,10 +523,11 @@ void deleteCase5(RedBlackNode* current){
       s->getLeftChild()->setRightChild(s);
       s->setParent(s->getLeftChild());
       s->setLeftChild(saved_sl_right);
-      saved_sl_right->setParent(s);
-
+      if(saved_sl_right){
+        saved_sl_right->setParent(s);
+      }
     }
-    else if ((current == current->getParent()->getRightChild()) && (s->getLeftChild()->getIsBlack()) && (!s->getRightChild()->getIsBlack())){
+    else if ((current == current->getParent()->getRightChild()) && (s->getLeftChild() == NULL || s->getLeftChild()->getIsBlack()) && (s->getRightChild() != NULL && !s->getRightChild()->getIsBlack())){
       s->setBlack(false);
       s->getRightChild()->setBlack(true);
       //rotate left
@@ -532,7 +537,9 @@ void deleteCase5(RedBlackNode* current){
       s->getRightChild()->setLeftChild(s);
       s->setParent(s->getRightChild());
       s->setRightChild(saved_sl_left);
-      saved_sl_left->setParent(s);
+      if(saved_sl_left){
+        saved_sl_left->setParent(s);
+      }
     }
   }
   deleteCase6(current);
@@ -540,17 +547,14 @@ void deleteCase5(RedBlackNode* current){
 
 //sibling is black, sibling's right child is red, current is a left child.
 void deleteCase6(RedBlackNode* current){
-  cout << "del case 6\n";
   RedBlackNode* s = getSibling(current);
   s->setBlack(current->getParent()->getIsBlack());
   current->getParent()->setBlack(true);
   if (current == current->getParent()->getLeftChild()) {
-    cout << "del case 6.1a\n";
     s->getRightChild()->setBlack(true);
     //rotate left
     RedBlackNode* saved_p = current->getParent();
     RedBlackNode* saved_s_left = s->getLeftChild();
-    cout << "del case 6.2a\n";
     if(saved_p->getParent() != NULL){
       if(saved_p == saved_p->getParent()->getLeftChild()){
         saved_p->getParent()->setLeftChild(s);
@@ -559,18 +563,15 @@ void deleteCase6(RedBlackNode* current){
         saved_p->getParent()->setRightChild(s);
       }
     }
-    cout << "del case 6.3a\n";
     s->setParent(saved_p->getParent());
     s->setLeftChild(saved_p);
     saved_p->setParent(s);
     if(saved_s_left != NULL){
       saved_s_left->setParent(saved_p);
     }
-    cout << "del case 6.4a\n";
     saved_p->setRightChild(saved_s_left);
   }
   else {
-    cout << "del case 6.1b\n";
     s->getLeftChild()->setBlack(true);
     //rotate right
     RedBlackNode* saved_p = current->getParent();
